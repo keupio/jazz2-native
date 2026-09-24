@@ -56,6 +56,10 @@
 #include "Jazz2/Compatibility/JJ2Tileset.h"
 #include "Jazz2/Compatibility/EventConverter.h"
 
+#if defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_IOS)
+#	include "Jazz2/Platform/MacOS/SourceImport.h"
+#endif
+
 #if defined(WITH_MULTIPLAYER)
 #	include "Jazz2/Multiplayer/NetworkManager.h"
 #	include "Jazz2/Multiplayer/INetworkHandler.h"
@@ -403,6 +407,20 @@ void GameEventHandler::OnPreInitialize(AppConfiguration& config)
 		auto& resolver = ContentResolver::Get();
 		resolver.SetHeadless(true);
 	} else {
+#if defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_IOS) && !defined(DEDICATED_SERVER)
+		// Show the native importer before the graphics backend creates a fullscreen window.
+		// Preferences have already been loaded, and normal startup can use the imported files.
+		auto& importResolver = ContentResolver::Get();
+		if (!importResolver.IsContentPrebaked() &&
+			!fs::IsReadableFile(fs::FindPathCaseInsensitive(fs::CombinePath(importResolver.GetSourcePath(), "Anims.j2a"_s))) &&
+			!fs::IsReadableFile(fs::FindPathCaseInsensitive(fs::CombinePath(importResolver.GetSourcePath(), "AnimsSw.j2a"_s)))) {
+			if (Platform::MacOS::ImportSourceDirectory(String(importResolver.GetSourcePath()).data(), String(importResolver.GetCachePath()).data(), true) != Platform::MacOS::SourceImportResult::Imported) {
+				theApplication().Quit();
+				return;
+			}
+		}
+#endif
+
 		if (PreferencesCache::MaxFps == PreferencesCache::UseVsync) {
 			config.withVSync = true;
 		} else {

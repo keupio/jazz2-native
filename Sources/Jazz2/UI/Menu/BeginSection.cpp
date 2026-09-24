@@ -14,6 +14,10 @@
 
 #include "../../PreferencesCache.h"
 
+#if defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_IOS)
+#	include "../../Platform/MacOS/SourceImport.h"
+#endif
+
 #if defined(SHAREWARE_DEMO_ONLY) && defined(DEATH_TARGET_EMSCRIPTEN)
 #	include "ImportSection.h"
 #endif
@@ -403,6 +407,11 @@ namespace Jazz2::UI::Menu
 #	if defined(DEATH_TARGET_ANDROID)
 					// Show `ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION` intent on Android
 					Backends::AndroidJniWrap_Activity::requestExternalStoragePermission();
+#	elif defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_IOS)
+					auto& resolver = ContentResolver::Get();
+					if (Platform::MacOS::ImportSourceDirectory(String(resolver.GetSourcePath()).data(), String(resolver.GetCachePath()).data(), false) == Platform::MacOS::SourceImportResult::Imported) {
+						theApplication().Quit();
+					}
 #	else
 					// `_sourcePath` contains adjusted path for display purposes
 					auto& resolver = ContentResolver::Get();

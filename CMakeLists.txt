@@ -79,10 +79,9 @@ endif()
 include(ncine_options)
 include(ncine_get_version)
 
-if(NCINE_PREFERRED_RHI STREQUAL "Metal")
-	# For the Metal backend's one Objective-C++ file (the CAMetalLayer bridge). Enabled before any dependency
-	# subdirectory is added, and together with OBJC: enabling only OBJCXX later would claim SDL2's `.m` files as
-	# Objective-C++ in a directory that never loaded the language ("CMAKE_OBJCXX_COMPILE_OBJECT not set").
+if((APPLE AND NOT IOS AND NOT NCINE_BUILD_LIBRETRO) OR NCINE_PREFERRED_RHI STREQUAL "Metal")
+	# macOS uses Objective-C++ for the native source importer; Metal uses it for the CAMetalLayer bridge.
+	# Enable it with OBJC before adding dependency subdirectories, which may contain SDL2 `.m` files.
 	enable_language(OBJC OBJCXX)
 endif()
 
@@ -181,6 +180,15 @@ endforeach()
 
 target_sources(${NCINE_APP} PRIVATE ${SOURCES} ${HEADERS} ${GENERATED_SOURCES})
 
+if(APPLE AND NOT IOS AND NOT NCINE_BUILD_LIBRETRO AND NOT DEDICATED_SERVER)
+	target_sources(${NCINE_APP} PRIVATE
+		"${NCINE_SOURCE_DIR}/Jazz2/Platform/MacOS/SourceImport.h"
+		"${NCINE_SOURCE_DIR}/Jazz2/Platform/MacOS/SourceImport.mm")
+	set_source_files_properties("${NCINE_SOURCE_DIR}/Jazz2/Platform/MacOS/SourceImport.mm"
+		PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
+	target_link_libraries(${NCINE_APP} PRIVATE "-framework AppKit" "-framework Foundation" "-framework UniformTypeIdentifiers")
+endif()
+
 # AssetPacker: converts original game data ahead of time (see Sources/Utilities/AssetPacker/Main.cpp). Host-only - it is
 # a build tool, so it is skipped for every cross-compiled target, and it links only the base layer and the
 # converters rather than the engine. See `NCINE_BUILD_ASSET_PACKER` in "ncine_options.cmake" for where it's built.
@@ -198,4 +206,3 @@ elseif(NOT WINDOWS_PHONE AND NOT WINDOWS_STORE AND NOT ANDROID AND NOT NCINE_BUI
 	include(ncine_installation)
 endif()
 include(ncine_strip_binaries)
-
