@@ -1,20 +1,11 @@
 diff --git a/cmake/VersionScript.cmake b/cmake/VersionScript.cmake
 --- a/cmake/VersionScript.cmake
 +++ b/cmake/VersionScript.cmake
-@@ -17,5 +17,5 @@
- #    misrepresented as being the original software.
- # 3. This notice may not be removed or altered from any source distribution.
+@@ -20 +20 @@
 -cmake_minimum_required(VERSION 2.8)
 +cmake_minimum_required(VERSION 3.10)
- # CMake script that reads a VERSION file and the current git history and the calls configure_file().
- # This is used by version_file() in VersionString.cmake
 diff --git a/src/stream/slice.cpp b/src/stream/slice.cpp
 --- a/src/stream/slice.cpp
 +++ b/src/stream/slice.cpp
-@@ -27,5 +27,6 @@
- #include <boost/cstdint.hpp>
- #include <boost/algorithm/string/predicate.hpp>
- #include <boost/filesystem/operations.hpp>
+@@ -30,0 +31 @@
 +#include <boost/filesystem/directory.hpp>
- #include <boost/range/size.hpp>
- #include "util/console.hpp"

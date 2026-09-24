@@ -44,11 +44,11 @@ fi
 
 # innoextract 1.9 predates CMake 4 and newer Boost header separation.
 PATCH="$PROJECT_DIR/cmake/patches/innoextract-1.9-modern-toolchain.patch"
-if git -C "$INNO_DIR" apply --reverse --check "$PATCH" 2>/dev/null; then
+if git -C "$INNO_DIR" apply --unidiff-zero --reverse --check "$PATCH" 2>/dev/null; then
     : # Already patched.
 else
-    git -C "$INNO_DIR" apply --check "$PATCH"
-    git -C "$INNO_DIR" apply "$PATCH"
+    git -C "$INNO_DIR" apply --unidiff-zero --check "$PATCH"
+    git -C "$INNO_DIR" apply --unidiff-zero "$PATCH"
 fi
 
 if [ ! -x "$BOOST_DIR/b2" ]; then
