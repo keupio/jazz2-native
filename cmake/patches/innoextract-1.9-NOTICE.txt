@@ -1,0 +1,9 @@
+innoextract 1.9
+Copyright (C) 2011-2020 Daniel Scharrer <daniel@constexpr.org>
+
+This bundled build uses innoextract 1.9 with two build-compatibility changes:
+- The version-generation CMake script requires CMake 3.10 instead of 2.8.
+- src/stream/slice.cpp explicitly includes boost/filesystem/directory.hpp.
+
+These changes are maintained in innoextract-1.9-modern-toolchain.patch.
+The original zlib license is reproduced in Innoextract.txt.

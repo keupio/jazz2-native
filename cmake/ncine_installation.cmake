@@ -52,6 +52,30 @@ if(MSVC)
 		include(InstallRequiredSystemLibraries)
 	endif()
 elseif(APPLE)
+	# Keep the upstream Git-derived NCINE_VERSION intact for the game and
+	# other platforms. Apple's bundle metadata uses numeric release/build
+	# fields, while Jazz2SourceVersion records the exact upstream revision.
+	if(DEFINED NCINE_VERSION_PATCH_LAST)
+		set(_MACOS_BUNDLE_SHORT_VERSION "${NCINE_VERSION_MAJOR}.${NCINE_VERSION_MINOR}.${NCINE_VERSION_PATCH_LAST}")
+	elseif(NCINE_VERSION_PATCH MATCHES "^[0-9]+$")
+		set(_MACOS_BUNDLE_SHORT_VERSION "${NCINE_VERSION_MAJOR}.${NCINE_VERSION_MINOR}.${NCINE_VERSION_PATCH}")
+	else()
+		set(_MACOS_BUNDLE_SHORT_VERSION "${NCINE_VERSION_MAJOR}.${NCINE_VERSION_MINOR}.0")
+	endif()
+
+	if(DEFINED MACOS_BUNDLE_SHORT_VERSION AND NOT MACOS_BUNDLE_SHORT_VERSION STREQUAL "")
+		set(_MACOS_BUNDLE_SHORT_VERSION "${MACOS_BUNDLE_SHORT_VERSION}")
+	endif()
+	if(NOT _MACOS_BUNDLE_SHORT_VERSION MATCHES "^[0-9]+\\.[0-9]+\\.[0-9]+$")
+		message(FATAL_ERROR "macOS CFBundleShortVersionString must be three numeric components; got '${_MACOS_BUNDLE_SHORT_VERSION}'")
+	endif()
+
+	set(MACOS_BUNDLE_BUILD_VERSION "1" CACHE STRING "Numeric macOS bundle build version (CFBundleVersion)")
+	if(NOT MACOS_BUNDLE_BUILD_VERSION MATCHES "^([0-9]+|[0-9]+\\.[0-9]+|[0-9]+\\.[0-9]+\\.[0-9]+)$")
+		message(FATAL_ERROR "macOS CFBundleVersion must contain one to three numeric components; got '${MACOS_BUNDLE_BUILD_VERSION}'")
+	endif()
+	set(MACOS_BUNDLE_SHORT_VERSION "${_MACOS_BUNDLE_SHORT_VERSION}")
+
 	set(CPACK_GENERATOR "Bundle")
 	set(CPACK_BUNDLE_NAME ${NCINE_APP_NAME})
 	set(CPACK_DMG_VOLUME_NAME ${NCINE_APP_NAME})
