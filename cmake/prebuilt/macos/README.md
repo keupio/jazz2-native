@@ -17,7 +17,10 @@ framework binaries were rebuilt for arm64 from the upstream Xiph sources:
 - libogg 1.3.5, source commit `e1774cd77f471443541596e09078e78fdc342e4f`
 - libvorbis 1.3.7, source commit `0657aee69dec8508a0011f47f3b69d7538e9d262`
 
-The rebuilt binaries retain the existing framework layout and install names;
-the Xiph `COPYING` notices are included in the corresponding framework
-resources. Keep the upstream notices and licenses for all bundled dependencies
-with any redistributed build.
+The rebuilt binaries retain the existing framework layout and install names.
+The ARM64 archive carries the Xiph `COPYING` notices in the framework
+resources; the x86_64 archive does not. Copies of both notices are kept under
+`cmake/licenses` and the macOS build script places them in
+`Contents/Resources/Licenses` after flattening the frameworks. Keep the
+upstream notices and licenses for all bundled dependencies with any
+redistributed build.

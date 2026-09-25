@@ -182,6 +182,13 @@ bundle_innoextract() {
     lipo -verify_arch x86_64 "$APP_BUNDLE/Contents/Helpers/innoextract"
 }
 
+bundle_dependency_licenses() {
+    local license_dir="$APP_BUNDLE/Contents/Resources/Licenses"
+    mkdir -p "$license_dir"
+    ditto "$PROJECT_DIR/cmake/licenses/libogg-COPYING.txt" "$license_dir/libogg.txt"
+    ditto "$PROJECT_DIR/cmake/licenses/libvorbis-COPYING.txt" "$license_dir/libvorbis.txt"
+}
+
 flatten_upstream_frameworks() {
     local frameworks_dir="$APP_BUNDLE/Contents/Frameworks"
     local framework logical binary_link target source output old_id
@@ -316,6 +323,7 @@ if [ "$ARCH" = "universal" ]; then
         fi
     done < <(find "$APP_BUNDLE/Contents" -type f -print0)
     bundle_innoextract
+    bundle_dependency_licenses
     verify_universal_bundle
     xattr -cr "$APP_BUNDLE"
     if [ -n "$SIGNING_IDENTITY" ]; then
@@ -428,6 +436,7 @@ ditto "$STAGED_APP" "$APP_BUNDLE"
 header "NORMALIZING RUNTIME LIBRARIES"
 
 flatten_upstream_frameworks
+bundle_dependency_licenses
 bundle_innoextract
 
 header "CLEANING BUNDLE METADATA"
